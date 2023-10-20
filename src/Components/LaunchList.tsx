@@ -5,7 +5,7 @@ import { FaSearch } from 'react-icons/fa'; // Import the search icon
 interface SpaceXLaunch {
   flight_number: number;
   mission_name: string;
-  launch_date: string;
+  launch_date_utc: string; // Updated to match the data
   launch_success: boolean;
   rocket: { rocket_name: string };
   image_url: string;
@@ -15,10 +15,10 @@ function LaunchList() {
   const [data, setData] = useState<SpaceXLaunch[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searching, setSearching] = useState(false);
   const itemsPerPage = 9;
   const currentPageRef = useRef(1);
   const [totalPages, setTotalPages] = useState(1);
-
   useEffect(() => {
     const apiUrl = 'https://api.spacexdata.com/v3/launches';
 
@@ -36,25 +36,21 @@ function LaunchList() {
   }, []);
 
   useEffect(() => {
-    const filterData = () => {
-      let filteredData = data;
-
-      if (searchTerm) {
-        filteredData = filteredData.filter((launch) =>
-          launch.mission_name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-
-      setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
-      currentPageRef.current = 1;
-
-      return filteredData;
-    };
-
-    if (!loading) {
-      setData(filterData());
+    if (!searching) {
+      // If not searching, reset the data to the full dataset
+      setData(data);
     }
-  }, [searchTerm]);
+  }, [searching, data]);
+  
+  const formatDate = (dateString: string) => {
+    if (isNaN(Date.parse(dateString))) {
+      return "Invalid Date";
+    }
+  
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+  
 
   const startIndex = (currentPageRef.current - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -72,17 +68,32 @@ function LaunchList() {
     }
   };
 
+  const handleSearch = () => {
+    setSearching(true); // Set searching to true to indicate a search is in progress
+
+    // Filter the data based on the search term
+    const filteredData = data.filter((launch) =>
+      launch.mission_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+    currentPageRef.current = 1;
+    setData(filteredData); // Update the data with the filtered results
+  };
+
   return (
     <div className="container mt-4">
       <div className="text-right mb-2">
-        <div className="search-bar">
+        <div className="search-bar" style={{textAlign: 'left'}}>
           <input
             type="text"
-            placeholder="Search by Mission Name"
+            placeholder="Search.."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <FaSearch className="search-icon" /> {/* Search icon */}
+          <button style={{background: '#0D6EFD'}} onClick={handleSearch}>
+            <FaSearch className="search-icon" />
+          </button>
         </div>
       </div>
       {loading ? (
@@ -93,7 +104,7 @@ function LaunchList() {
             <div key={launch.flight_number} className="col-12 col-sm-6 col-md-4 col-lg-4 p-3" style={{ textAlign: 'center' }}>
               <img src={Felcon1} alt={launch.mission_name} style={{ marginBottom: '40px' }} />
               <h3>{launch.mission_name}</h3>
-              <p>Launch Date: {launch.launch_date}</p>
+              <p>Launch Date: {formatDate(launch.launch_date_utc)}</p> {/* Use launch_date_utc */}
               <p>Rocket Name: {launch.rocket.rocket_name}</p>
               <div style={{ marginTop: '32px' }}>
                 <p>
@@ -114,7 +125,7 @@ function LaunchList() {
           <ul className="pagination">
             <li className="page-item">
               <button className="page-link" onClick={() => goToPage(currentPageRef.current - 1)}>
-                Previous
+                {"<<"}
               </button>
             </li>
             {Array.from({ length: totalPages }, (_, index) => (
@@ -126,7 +137,7 @@ function LaunchList() {
             ))}
             <li className="page-item">
               <button className="page-link" onClick={nextPage}>
-                Next
+                {">>"}
               </button>
             </li>
           </ul>
