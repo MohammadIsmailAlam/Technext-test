@@ -11,3 +11,9 @@ $secondary-color: #6C757D;
     background: var(--gray-white, #FFF);
     margin-bottom: 24px;
 }
+
+.text-center {
+    width: 124px;
+    height: 124px;
+    object-fit: contain;
+}
