@@ -25,21 +25,25 @@ function LaunchList() {
   const currentPageRef = useRef(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    const apiUrl = 'https://api.spacexdata.com/v3/launches';
+const originalData = useRef<SpaceXLaunch[]>([]);
 
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((data: SpaceXLaunch[]) => {
-        setData(data);
-        setTotalPages(Math.ceil(data.length / itemsPerPage));
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-      });
-  }, []);
+useEffect(() => {
+  const apiUrl = 'https://api.spacexdata.com/v3/launches';
+
+  fetch(apiUrl)
+    .then((response) => response.json())
+    .then((data: SpaceXLaunch[]) => {
+      originalData.current = data;
+      setData(data);
+      setTotalPages(Math.ceil(data.length / itemsPerPage));
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    });
+}, []);
+
 
   useEffect(() => {
     if (!searching) {
@@ -79,11 +83,10 @@ function LaunchList() {
     }
   
     if (launchStatusFilter === 'Failure') {
-      filteredData = filteredData.filter((launch) => !launch.launch_success);
+      filteredData = originalData.current.filter((launch) => !launch.launch_success);
     } else if (launchStatusFilter === 'Success') {
-      filteredData = filteredData.filter((launch) => launch.launch_success);
+      filteredData = originalData.current.filter((launch) => launch.launch_success);
     }
-  
     setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
     currentPageRef.current = 1;
     setData(filteredData); // Update the data with the filtered results
@@ -105,28 +108,32 @@ function LaunchList() {
 
   const nextPage = () => {
     if (currentPageRef.current < totalPages) {
-      currentPageRef.current++;
+      const nextPageNumber = currentPageRef.current + 1;
+      goToPage(nextPageNumber);
     }
   };
 
   const goToPage = (pageNumber: number) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
       currentPageRef.current = pageNumber;
+      window.scrollTo(0, 0); // Scroll to the top of the page when changing pages
     }
   };
+  
 
   const handleSearch = () => {
-    setSearching(true); // Set searching to true to indicate a search is in progress
-
-    // Filter the data based on the search term
-    const filteredData = data.filter((launch) =>
+    setSearching(true);
+  
+    // Filter the original data based on the search term
+    const filteredData = originalData.current.filter((launch) =>
       launch.mission_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
+  
     setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
     currentPageRef.current = 1;
-    setData(filteredData); // Update the data with the filtered results
+    setData(filteredData);
   };
+  
 
   return (
     <div className="container mt-4">
