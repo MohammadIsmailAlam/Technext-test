@@ -5,20 +5,26 @@ import { FaSearch } from 'react-icons/fa'; // Import the search icon
 interface SpaceXLaunch {
   flight_number: number;
   mission_name: string;
-  launch_date_utc: string; // Updated to match the data
+  launch_date_utc: string;
   launch_success: boolean;
   rocket: { rocket_name: string };
-  image_url: string;
+  links: {
+    mission_patch: string;
+  };
 }
+
 
 function LaunchList() {
   const [data, setData] = useState<SpaceXLaunch[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [searching, setSearching] = useState(false);
+  const [launchDateFilter, setLaunchDateFilter] = useState<string>('');
+  const [launchStatusFilter, setLaunchStatusFilter] = useState<string>(''); // Set initial state to empty string
   const itemsPerPage = 9;
   const currentPageRef = useRef(1);
   const [totalPages, setTotalPages] = useState(1);
+
   useEffect(() => {
     const apiUrl = 'https://api.spacexdata.com/v3/launches';
 
@@ -41,16 +47,57 @@ function LaunchList() {
       setData(data);
     }
   }, [searching, data]);
+
+  useEffect(() => {
+    // Filter the data based on launch date and launch status whenever the filters change
+    let filteredData = data;
   
+    if (launchDateFilter === 'Last Week') {
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
+  
+      filteredData = filteredData.filter((launch) => {
+        const launchDate = new Date(launch.launch_date_utc);
+        return launchDate >= lastWeek;
+      });
+    } else if (launchDateFilter === 'Last Month') {
+      const lastMonth = new Date();
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+  
+      filteredData = filteredData.filter((launch) => {
+        const launchDate = new Date(launch.launch_date_utc);
+        return launchDate >= lastMonth;
+      });
+    } else if (launchDateFilter === 'Last Year') {
+      const lastYear = new Date();
+      lastYear.setFullYear(lastYear.getFullYear() - 1);
+  
+      filteredData = filteredData.filter((launch) => {
+        const launchDate = new Date(launch.launch_date_utc);
+        return launchDate >= lastYear;
+      });
+    }
+  
+    if (launchStatusFilter === 'Failure') {
+      filteredData = filteredData.filter((launch) => !launch.launch_success);
+    } else if (launchStatusFilter === 'Success') {
+      filteredData = filteredData.filter((launch) => launch.launch_success);
+    }
+  
+    setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+    currentPageRef.current = 1;
+    setData(filteredData); // Update the data with the filtered results
+  }, [launchDateFilter, launchStatusFilter, data]);
+  
+
   const formatDate = (dateString: string) => {
     if (isNaN(Date.parse(dateString))) {
       return "Invalid Date";
     }
-  
+
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-  
 
   const startIndex = (currentPageRef.current - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -83,18 +130,45 @@ function LaunchList() {
 
   return (
     <div className="container mt-4">
-      <div className="text-right mb-2">
-        <div className="search-bar" style={{textAlign: 'left'}}>
+      <div className="text-right mb-2 d-flex searchx">
+      <div className="search-bar" style={{ textAlign: 'left' }}>
           <input
             type="text"
             placeholder="Search.."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button style={{background: '#0D6EFD'}} onClick={handleSearch}>
+          <button style={{ background: '#0D6EFD' }} onClick={handleSearch}>
             <FaSearch className="search-icon" />
           </button>
         </div>
+
+        <div className="search-filters" style={{ display: 'flex', justifyContent: 'flex-end', marginLeft: '26rem' }}>
+          <div style={{ marginRight: '16px' }}>
+            <label style={{ marginLeft: '16px' }}>By Launch Date:</label>
+            <select
+              value={launchDateFilter}
+              onChange={(e) => setLaunchDateFilter(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="Last Week">Last Week</option>
+              <option value="Last Month">Last Month</option>
+              <option value="Last Year">Last Year</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ marginLeft: '16px' }}>By Launch Status:</label>
+            <select
+              value={launchStatusFilter}
+              onChange={(e) => setLaunchStatusFilter(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="Failure">Failure</option>
+              <option value="Success">Success</option>
+            </select>
+          </div>
+        </div>
+
       </div>
       {loading ? (
         <p>Loading...</p>
@@ -102,9 +176,9 @@ function LaunchList() {
         <div className="row">
           {currentPageData.map((launch, index) => (
             <div key={launch.flight_number} className="col-12 col-sm-6 col-md-4 col-lg-4 p-3" style={{ textAlign: 'center' }}>
-              <img src={Felcon1} alt={launch.mission_name} style={{ marginBottom: '40px' }} />
+              <img src={launch.links.mission_patch} alt={launch.mission_name} style={{ marginBottom: '40px' }} className="text-center" />
               <h3>{launch.mission_name}</h3>
-              <p>Launch Date: {formatDate(launch.launch_date_utc)}</p> {/* Use launch_date_utc */}
+              <p>Launch Date: {formatDate(launch.launch_date_utc)}</p>
               <p>Rocket Name: {launch.rocket.rocket_name}</p>
               <div style={{ marginTop: '32px' }}>
                 <p>
@@ -125,7 +199,7 @@ function LaunchList() {
           <ul className="pagination">
             <li className="page-item">
               <button className="page-link" onClick={() => goToPage(currentPageRef.current - 1)}>
-                {"<<"}
+                {"<"}
               </button>
             </li>
             {Array.from({ length: totalPages }, (_, index) => (
@@ -137,7 +211,7 @@ function LaunchList() {
             ))}
             <li className="page-item">
               <button className="page-link" onClick={nextPage}>
-                {">>"}
+                {">"}
               </button>
             </li>
           </ul>
