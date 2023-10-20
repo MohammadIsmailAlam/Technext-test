@@ -1,0 +1,14 @@
+$primary-color: #007BFF;
+$secondary-color: #6C757D;
+
+// Your custom styles here
+.col-12.col-sm-6.col-md-4.col-lg-4.p-3 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid var(--gray-400, #CED4DA) !important;
+    background: var(--gray-white, #FFF);
+    margin-bottom: 24px;
+}
