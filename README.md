@@ -1,5 +1,14 @@
 # Getting Started with Create React App
 
+clone the git repo and paste to your vs code or other idms.
+paste the command- git clone https://github.com/MohammadIsmailAlam/Technext-test.git
+
+after cloning done give the command {npm i} for install npm modules and necessery dependencys.
+
+paste the command npm start to start the project....
+
+Project live link - https://technext-test.vercel.app/
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
