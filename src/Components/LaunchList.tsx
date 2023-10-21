@@ -177,6 +177,7 @@ function LaunchList() {
         <div className="row">
           {currentPageData.map((launch, index) => (
             <div key={launch.flight_number} className="col-12 col-sm-6 col-md-4 col-lg-4 p-3" style={{ textAlign: 'center' }}>
+              <img src={launch.links.mission_patch} alt={launch.mission_name} style={{ marginBottom: '40px' }} className="text-center" />
               <h3>{launch.mission_name}</h3>
               <p>Launch Date: {formatDate(launch.launch_date_utc)}</p>
               <p>Rocket Name: {launch.rocket.rocket_name}</p>
