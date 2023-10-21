@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Felcon1 from './img/Property 1=6.jpg';
 import { FaSearch } from 'react-icons/fa'; // Import the search icon
 
 interface SpaceXLaunch {
@@ -25,24 +24,24 @@ function LaunchList() {
   const currentPageRef = useRef(1);
   const [totalPages, setTotalPages] = useState(1);
 
-const originalData = useRef<SpaceXLaunch[]>([]);
+  const originalData = useRef<SpaceXLaunch[]>([]);
 
-useEffect(() => {
-  const apiUrl = 'https://api.spacexdata.com/v3/launches';
+  useEffect(() => {
+    const apiUrl = 'https://api.spacexdata.com/v3/launches';
 
-  fetch(apiUrl)
-    .then((response) => response.json())
-    .then((data: SpaceXLaunch[]) => {
-      originalData.current = data;
-      setData(data);
-      setTotalPages(Math.ceil(data.length / itemsPerPage));
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    });
-}, []);
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data: SpaceXLaunch[]) => {
+        originalData.current = data;
+        setData(data);
+        setTotalPages(Math.ceil(data.length / itemsPerPage));
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      });
+  }, []);
 
 
   useEffect(() => {
@@ -55,11 +54,11 @@ useEffect(() => {
   useEffect(() => {
     // Filter the data based on launch date and launch status whenever the filters change
     let filteredData = data;
-  
+
     if (launchDateFilter === 'Last Week') {
       const lastWeek = new Date();
       lastWeek.setDate(lastWeek.getDate() - 7);
-  
+
       filteredData = filteredData.filter((launch) => {
         const launchDate = new Date(launch.launch_date_utc);
         return launchDate >= lastWeek;
@@ -67,7 +66,7 @@ useEffect(() => {
     } else if (launchDateFilter === 'Last Month') {
       const lastMonth = new Date();
       lastMonth.setMonth(lastMonth.getMonth() - 1);
-  
+
       filteredData = filteredData.filter((launch) => {
         const launchDate = new Date(launch.launch_date_utc);
         return launchDate >= lastMonth;
@@ -75,13 +74,13 @@ useEffect(() => {
     } else if (launchDateFilter === 'Last Year') {
       const lastYear = new Date();
       lastYear.setFullYear(lastYear.getFullYear() - 1);
-  
+
       filteredData = filteredData.filter((launch) => {
         const launchDate = new Date(launch.launch_date_utc);
         return launchDate >= lastYear;
       });
     }
-  
+
     if (launchStatusFilter === 'Failure') {
       filteredData = originalData.current.filter((launch) => !launch.launch_success);
     } else if (launchStatusFilter === 'Success') {
@@ -91,7 +90,7 @@ useEffect(() => {
     currentPageRef.current = 1;
     setData(filteredData); // Update the data with the filtered results
   }, [launchDateFilter, launchStatusFilter, data]);
-  
+
 
   const formatDate = (dateString: string) => {
     if (isNaN(Date.parse(dateString))) {
@@ -119,26 +118,25 @@ useEffect(() => {
       window.scrollTo(0, 0); // Scroll to the top of the page when changing pages
     }
   };
-  
 
   const handleSearch = () => {
     setSearching(true);
-  
+
     // Filter the original data based on the search term
     const filteredData = originalData.current.filter((launch) =>
       launch.mission_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  
+
     setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
     currentPageRef.current = 1;
     setData(filteredData);
   };
-  
+
 
   return (
     <div className="container mt-4">
       <div className="text-right mb-2 d-flex searchx">
-      <div className="search-bar" style={{ textAlign: 'left' }}>
+        <div className="search-bar" style={{ textAlign: 'left', flex: 1 }}>
           <input
             type="text"
             placeholder="Search.."
@@ -150,7 +148,7 @@ useEffect(() => {
           </button>
         </div>
 
-        <div className="search-filters" style={{ display: 'flex', justifyContent: 'flex-end', marginLeft: '26rem' }}>
+        <div className="search-filters" style={{ display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
           <div style={{ marginRight: '16px' }}>
             <label style={{ marginLeft: '16px' }}>By Launch Date:</label>
             <select
@@ -175,7 +173,6 @@ useEffect(() => {
             </select>
           </div>
         </div>
-
       </div>
       {loading ? (
         <p>Loading...</p>
