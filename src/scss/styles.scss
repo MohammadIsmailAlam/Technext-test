@@ -17,3 +17,16 @@ $secondary-color: #6C757D;
     height: 124px;
     object-fit: contain;
 }
+
+/* Hide filters by default */
+.search-filters {
+    display: none;
+  }
+  
+  /* Display filters below the search bar for smaller screens */
+  @media (max-width: 768px) {
+    .search-filters {
+      display: block;
+      margin-top: 16px;
+    }
+  }  
