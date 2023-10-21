@@ -202,19 +202,19 @@ function LaunchList() {
               <button className="page-link" onClick={() => prevPage()}>
                 {"<"}
               </button>
-</li>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <li key={index} className={`page-item ${currentPageRef.current === index + 1 ? 'active' : ''}`}>
-                  <button className="page-link" onClick={() => nextPage()}>
-                    {index + 1}
-                  </button>
-                </li>
-              ))}
-              <li className="page-item">
+            </li>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <li key={index} className={`page-item ${currentPageRef.current === index + 1 ? 'active' : ''}`}>
+                <button className="page-link" onClick={() => nextPage()}>
+                  {index + 1}
+                </button>
+              </li>
+            ))}
+            <li className="page-item">
               <button className="page-link" onClick={nextPage}>
                 {">"}
               </button>
-</li>
+            </li>
           </ul>
         </nav>
       </div>
