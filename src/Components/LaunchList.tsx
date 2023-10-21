@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaSearch } from 'react-icons/fa'; // Import the search icon
+import { FaSearch } from 'react-icons/fa';
 
 interface SpaceXLaunch {
   flight_number: number;
@@ -12,14 +12,13 @@ interface SpaceXLaunch {
   };
 }
 
-
 function LaunchList() {
   const [data, setData] = useState<SpaceXLaunch[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [searching, setSearching] = useState(false);
   const [launchDateFilter, setLaunchDateFilter] = useState<string>('');
-  const [launchStatusFilter, setLaunchStatusFilter] = useState<string>(''); // Set initial state to empty string
+  const [launchStatusFilter, setLaunchStatusFilter] = useState<string>('');
   const itemsPerPage = 9;
   const currentPageRef = useRef(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -42,7 +41,6 @@ function LaunchList() {
         setLoading(false);
       });
   }, []);
-
 
   useEffect(() => {
     if (!searching) {
@@ -91,7 +89,6 @@ function LaunchList() {
     setData(filteredData); // Update the data with the filtered results
   }, [launchDateFilter, launchStatusFilter, data]);
 
-
   const formatDate = (dateString: string) => {
     if (isNaN(Date.parse(dateString))) {
       return "Invalid Date";
@@ -132,11 +129,10 @@ function LaunchList() {
     setData(filteredData);
   };
 
-
   return (
     <div className="container mt-4">
-      <div className="text-right mb-2 d-flex searchx">
-        <div className="search-bar" style={{ textAlign: 'left', flex: 1 }}>
+      <div className="row mb-2 d-flex flex-column flex-md-row">
+        <div className="search-bar col-12 col-md-4 sm-12 d-flex align-items-center" style={{ textAlign: 'left' }}>
           <input
             type="text"
             placeholder="Search.."
@@ -148,9 +144,9 @@ function LaunchList() {
           </button>
         </div>
 
-        <div className="search-filters" style={{ display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
-          <div style={{ marginRight: '16px' }}>
-            <label style={{ marginLeft: '16px' }}>By Launch Date:</label>
+        <div className="search-filters col-12 col-md-8 col-sm-12 d-flex flex-column flex-md-row justify-content-md-end">
+          <div className="filter-select" style={{ marginRight: '16px' }}>
+            <label>By Launch Date:</label>
             <select
               value={launchDateFilter}
               onChange={(e) => setLaunchDateFilter(e.target.value)}
@@ -161,8 +157,8 @@ function LaunchList() {
               <option value="Last Year">Last Year</option>
             </select>
           </div>
-          <div>
-            <label style={{ marginLeft: '16px' }}>By Launch Status:</label>
+          <div className="filter-select">
+            <label>By Launch Status:</label>
             <select
               value={launchStatusFilter}
               onChange={(e) => setLaunchStatusFilter(e.target.value)}
@@ -174,13 +170,13 @@ function LaunchList() {
           </div>
         </div>
       </div>
+
       {loading ? (
         <p>Loading...</p>
       ) : (
         <div className="row">
           {currentPageData.map((launch, index) => (
             <div key={launch.flight_number} className="col-12 col-sm-6 col-md-4 col-lg-4 p-3" style={{ textAlign: 'center' }}>
-              <img src={launch.links.mission_patch} alt={launch.mission_name} style={{ marginBottom: '40px' }} className="text-center" />
               <h3>{launch.mission_name}</h3>
               <p>Launch Date: {formatDate(launch.launch_date_utc)}</p>
               <p>Rocket Name: {launch.rocket.rocket_name}</p>
