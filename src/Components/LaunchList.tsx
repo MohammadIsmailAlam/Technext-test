@@ -22,7 +22,7 @@ function LaunchList() {
   const itemsPerPage = 9;
   const currentPageRef = useRef(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const [currentPage, setCurrentPage] = useState(1);
   const originalData = useRef<SpaceXLaunch[]>([]);
 
   useEffect(() => {
@@ -98,21 +98,20 @@ function LaunchList() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const startIndex = (currentPageRef.current - 1) * itemsPerPage;
+  const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentPageData = data.slice(startIndex, endIndex);
 
+
   const nextPage = () => {
-    if (currentPageRef.current < totalPages) {
-      const nextPageNumber = currentPageRef.current + 1;
-      goToPage(nextPageNumber);
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
-  const goToPage = (pageNumber: number) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      currentPageRef.current = pageNumber;
-      window.scrollTo(0, 0); // Scroll to the top of the page when changing pages
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
 
@@ -195,26 +194,27 @@ function LaunchList() {
         </div>
       )}
 
+
       <div className="d-flex justify-content-center mt-4">
         <nav aria-label="Page navigation">
           <ul className="pagination">
             <li className="page-item">
-              <button className="page-link" onClick={() => goToPage(currentPageRef.current - 1)}>
+              <button className="page-link" onClick={() => prevPage()}>
                 {"<"}
               </button>
-            </li>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <li key={index} className={`page-item ${currentPageRef.current === index + 1 ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => goToPage(index + 1)}>
-                  {index + 1}
-                </button>
-              </li>
-            ))}
-            <li className="page-item">
+</li>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <li key={index} className={`page-item ${currentPageRef.current === index + 1 ? 'active' : ''}`}>
+                  <button className="page-link" onClick={() => nextPage()}>
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+              <li className="page-item">
               <button className="page-link" onClick={nextPage}>
                 {">"}
               </button>
-            </li>
+</li>
           </ul>
         </nav>
       </div>
